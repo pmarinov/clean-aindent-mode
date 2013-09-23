@@ -135,14 +135,6 @@ be deleted in case it was abandoned"
     ;; return 't if we moved, nil if already beginning of buffer
     (not (= c (point)))))
 
-(defun bsunindent_get-current-indent()
-  "Gets indentation of the current line"
-  (save-excursion
-    (beginning-of-line nil)
-      (let ((pos (point)))
-        (skip-chars-forward " \t")
-        (- (point) pos))))
-
 (defun bsunindent_find-indent(start)
   "Searches lines backward, finds the one that is indented less
 than certain indentation t"
@@ -150,7 +142,7 @@ than certain indentation t"
     (let (c)
       (while
         (and
-          (set 'c (bsunindent_get-current-indent))
+          (set 'c (current-indentation))
           (> c 0)
           ;; Find an indent smaller than _start_
           (<= start c)
@@ -187,7 +179,7 @@ align with that smaller indentation"
     ;; Else, cursor inside indent space, do unindent
     (let*
         ((ln (bsunindent_line-point))
-        (c (bsunindent_get-current-indent))  ;; current indent
+        (set 'c (current-indentation))
         (n (bsunindent_find-indent c))  ;; compute new indent
         (s (+ ln n)))  ;; start of region to delete
       (if (not (= s c))
