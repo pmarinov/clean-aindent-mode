@@ -179,7 +179,7 @@ align with that smaller indentation"
     ;; Else, cursor inside indent space, do unindent
     (let*
         ((ln (bsunindent_line-point))
-        (set 'c (current-indentation))
+        (c (current-indentation))
         (n (bsunindent_find-indent c))  ;; compute new indent
         (s (+ ln n)))  ;; start of region to delete
       (if (not (= s c))
