@@ -30,8 +30,14 @@
 
 ;;; Change Log:
 ;;
-;; 2014/03/07 pmarinov (v1.1.0)
+;; 2014-03-07, pmarinov, v1.1.0
 ;;     Added: Simple auto indent feature. Configurable via M-x customize.
+;;
+;; 2013-08-31, pmarinov, v1.0.0
+;;     First implementation.
+;;
+
+
 ;;
 ;; Implementation of Clean auto indent
 ;;

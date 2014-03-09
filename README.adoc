@@ -55,10 +55,10 @@ C0, public domain. See {license}[LICENSE.txt]
 
 == Changelog
 
-==== v1.1.0 2014-03-07 pmarinov
+==== 2014-03-07, v1.1.0, pmarinov
 
 * Added: Simple auto indent mode. Configurable via M-x customize.
 
-==== v1.0.0 2013-08-31 pmarinov
+==== 2013-08-31, v1.0.0, pmarinov
 
 * First implementation
