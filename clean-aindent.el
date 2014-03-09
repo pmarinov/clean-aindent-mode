@@ -8,7 +8,7 @@
 ;; Last: 2014-03-07
 ;; Version: 1.1.0
 ;; License: C0 (public domain)
-;; URL: https://github.com/pmarinov/clean-indent.el
+;; URL: https://github.com/pmarinov/clean-aindent
 ;; Doc URL: http://www.emacswiki.org/emacs/CleanAutoIndent
 ;; Keywords: indentation whitespace
 

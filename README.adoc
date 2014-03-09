@@ -1,6 +1,64 @@
-== README
+= README
+:docpage: http://www.emacswiki.org/emacs/CleanAutoIndent
+:license: https://github.com/pmarinov/clean-aindent/blob/master/LICENSE.txt
 
-Emacs extension for clean auto-indent and backspace unindent
+clean-aindent.el -- Emacs extension for clean auto-indent and
+backspace unindent
 
-For installation and use please read the instructions at the beginning
-of clean-aindent.el
+== Features
+
+* An auto-indent function (RET) that takes care to delete any unused
+  white spaces
+
+* An unindent function (M-backspace) that aligns the cursor position
+  to match indentation of best candidate from lines above
+
+* Simple auto-indent mode (activate via M-x customize) that disregards
+  smart language based indentation and instead consistently aligns
+  *only* based on indentation of the line above
+
+For detailed documentation with screenshots please visit the
+{docpage}[emacswiki page].
+
+== Installation
+
+. Download +clean-aindent.el+
+
+ $ wget https://github.com/pmarinov/clean-aindent/archive/master.zip
+ $ unzip master.zip
+
+. Copy +clean-aindent.el+ to your +~/.emacs.d+ directory
+
+ $ cp clean-aindent-master/clean-aindent.el ~/.emacs.d
+
+. Add this to your +init.el+
+
+ (require 'clean-aindent)
+
+== Configuration
+
+To activat the simple indent mode, do one of the two:
+
+. In your +init.el+
+
+(set 'clean-aindent_is-simple-indent t)
+
+. Via +M-x customize+
+
+Search for +auto indent+, toggle to +on+. Then +Apply and Save+.
+
+== License
+
+clean-aindent was written by Petar Marinov
+
+C0, public domain. See {license}[LICENSE.txt]
+
+== Changelog
+
+=== v1.1.0 2014-03-07 pmarinov
+
+* Added: Simple auto indent feature. Configurable via M-x customize.
+
+=== v1.0 2013-08-31 pmarinov
+
+* First implementation
