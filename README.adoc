@@ -41,7 +41,7 @@ To activat the simple indent mode, do one of the two:
 
 . In your +init.el+
 
-(set 'clean-aindent_is-simple-indent t)
+ (set 'clean-aindent_is-simple-indent t)
 
 . Via +M-x customize+
 
@@ -55,10 +55,10 @@ C0, public domain. See {license}[LICENSE.txt]
 
 == Changelog
 
-=== v1.1.0 2014-03-07 pmarinov
+==== v1.1.0 2014-03-07 pmarinov
 
-* Added: Simple auto indent feature. Configurable via M-x customize.
+* Added: Simple auto indent mode. Configurable via M-x customize.
 
-=== v1.0 2013-08-31 pmarinov
+==== v1.0.0 2013-08-31 pmarinov
 
 * First implementation
