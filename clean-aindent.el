@@ -1,39 +1,46 @@
-;; clean-aindent.el
-;;
-;; version 1.0
+;;; clean-aindent.el
 
 ;; This is free and unencumbered software released into the public domain.
 ;; (http://unlicense.org)
 
-;; Author: petar marinov <efravia@gmail.com>, 2013-08-17
-;; URL: https://github.com/pmarinov/clean-indent
+;; Author: petar marinov <efravia@gmail.com>
+;; Created: 2013-08-17
+;; Last: 2014-03-07
+;; Version: 1.1.0
+;; License: C0 (public domain)
+;; URL: https://github.com/pmarinov/clean-indent.el
+;; Doc URL: http://www.emacswiki.org/emacs/CleanAutoIndent
+;; Keywords: indentation whitespace
 
 ;; This file is not part of GNU Emacs.
 
-;; = Description
+;;; Commentary:
+
+;; 1. Extension of `newline-and-indent' that keeps track of the last
+;; auto-indent operation and, if it is abandoned, would take care to
+;; trim down the abandoned white space characters. It binds
+;; `newline-and-indent' to RET.
 ;;
-;; 1. Clean indent is an extension of "newline-and-indent" that takes
-;; care to delete the unused indentation if the line is abandoned.
-;;
-;; 2. Backspace Unindent is an extension of M-backspace: When cursor
-;; is in the indentation space of a line, or at the first character,
-;; and you press M-backspace it will move the entire line to be
-;; aligned to the line above or any other that is with indentation
+;; 2. Backspace Unindent. Extension of M-backspace.
+;; When cursor is in the indentation space of a line, or at the first
+;; character and you press M-backspace it will move the entire line to
+;; be aligned to the line above or any other that is with indentation
 ;; smaller than the current.
-
-;; = Installation and use
 ;;
-;; Add "(require 'clean-aindent)" to your init.el. This will make
-;; "Enter" execute clean-aindent() and M-backspace execute
-;; bsunindent()
-;;
-;; To deactivate in your currend session do "M-x
-;; clean-aindent-done". To uninstall permanently remove the "require"
-;; function from init.el.
 
+;;; Change Log:
+;;
+;; 2014/03/07 pmarinov (v1.1.0)
+;;     Added: Simple auto indent feature. Configurable via M-x customize.
 ;;
 ;; Implementation of Clean auto indent
 ;;
+
+(defcustom clean-aindent_is-simple-indent nil
+  "Indentation should use the smart language mode or simple mode"
+  :tag "Clean auto indent is in simple mode"
+  :group 'indent
+  :type 'boolean)
 
 (defun clean-aindent_get-indent-len()
   "Computes the length of the indentation at 'last-indent."
@@ -50,7 +57,6 @@
   "Checks if last auto-indent position was abandoned.
 Verifies if cursor moved away and that the indent was left
 unaltered."
-  (interactive)
   (if (not last-indent)
     nil
     ;; (message "last-indent %d point %d" last-indent (point))
@@ -79,7 +85,6 @@ unaltered."
 
 (defun clean-aindent_check-last-point()
   "Checks if last pos of auto-indent was abandoned and deletes it"
-  (interactive)
   (if (clean-aindent_abandonedp)
     (clean-aindent_trim-last-point))
   ;; Once we leave the position, clean the indent bookmark
@@ -89,6 +94,32 @@ unaltered."
       (not (= last-indent (point))))
     (set 'last-indent nil)))
 
+(defun clean-aindent_find-indent()
+  "Searches lines backward, finds first non-blank. Returns
+indentation value"
+  (save-excursion
+    ;; Walk lines backward, until first non-blank
+    (bsunindent_prev-line)
+    ;; Return indentation of that line
+    (current-indentation)))
+
+(defun clean-aindent_simple-newline-and-indent()
+  "Simple auto indent. Indentation is based only on previous line
+indentation, regardless of language settings."
+  ;; First remove any trailing spaces from the current line
+  (save-excursion
+    (let ((s 0)
+         (e 0))
+      (beginning-of-line)
+      (set 's (point))
+      (end-of-line)
+      (set 'e (point))
+      (delete-trailing-whitespace s e)
+      (end-of-line)))
+  ;; Insert a new line and indent
+  (newline)
+  (indent-to (clean-aindent_find-indent) 0))
+
 (defun clean-aindent()
   "Invokes newline-and-indent().
 Key `RET' is bound to clean-aindent. It does auto-indent via
@@ -96,7 +127,9 @@ newline-and-indent(). Keeps track of the last indent so that it can
 be deleted in case it was abandoned"
   (interactive)
   (clean-aindent_check-last-point)  ; In case of consequtive aindent calls
-  (newline-and-indent)
+  (if clean-aindent_is-simple-indent
+    (clean-aindent_simple-newline-and-indent)
+    (newline-and-indent))
   (set 'last-indent nil)
   (make-local-variable 'last-indent)
   (set 'last-indent (point))
@@ -126,7 +159,6 @@ be deleted in case it was abandoned"
 
 (defun bsunindent_prev-line()
   "Move cursor to previous line, skip empty lines"
-  (interactive)
   (let ((c (point)))
     (while
       (and
