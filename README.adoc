@@ -37,7 +37,7 @@ For detailed documentation with screenshots please visit the
 
 == Configuration
 
-To activat the simple indent mode, do one of the two:
+To activate the simple indent mode, do one of the two:
 
 . In your +init.el+
 
