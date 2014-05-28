@@ -5,8 +5,8 @@
 
 ;; Author: petar marinov <efravia@gmail.com>
 ;; Created: 2013-08-17
-;; Last: 2014-03-07
-;; Version: 1.1.0
+;; Last: 2014-05-27
+;; Version: 1.2.0
 ;; License: C0 (public domain)
 ;; URL: https://github.com/pmarinov/clean-aindent
 ;; Doc URL: http://www.emacswiki.org/emacs/CleanAutoIndent
@@ -29,6 +29,9 @@
 ;;
 
 ;;; Change Log:
+;;
+;; 2014-05-27, pmarinov, v1.2.0
+;;     Changed: Move all function under the same namespace (function prefix)
 ;;
 ;; 2014-03-07, pmarinov, v1.1.0
 ;;     Added: Simple auto indent feature. Configurable via M-x customize.
@@ -105,7 +108,7 @@ unaltered."
 indentation value"
   (save-excursion
     ;; Walk lines backward, until first non-blank
-    (bsunindent_prev-line)
+    (clean-aindent_prev-line)
     ;; Return indentation of that line
     (current-indentation)))
 
@@ -147,7 +150,7 @@ be deleted in case it was abandoned"
 ;; Backspace-unindent implementation functions
 ;;
 
-(defun bsunindent_get-line-len()
+(defun clean-aindent_get-line-len()
   "Computes length of current line"
   (save-excursion
     (beginning-of-line nil)
@@ -155,25 +158,25 @@ be deleted in case it was abandoned"
         (end-of-line nil)
         (- (point) pos))))
 
-(defun bsunindent_line-emptyp()
+(defun clean-aindent_line-emptyp()
   "Checks if line is empty"
   (save-excursion
     (beginning-of-line nil)
     (if (= (point) 1)
       nil
-      (= (bsunindent_get-line-len) 0))))
+      (= (clean-aindent_get-line-len) 0))))
 
-(defun bsunindent_prev-line()
+(defun clean-aindent_prev-line()
   "Move cursor to previous line, skip empty lines"
   (let ((c (point)))
     (while
       (and
         (= 0 (forward-line -1))
-        (bsunindent_line-emptyp)))
+        (clean-aindent_line-emptyp)))
     ;; return 't if we moved, nil if already beginning of buffer
     (not (= c (point)))))
 
-(defun bsunindent_find-indent(start)
+(defun clean-aindent_find-u-indent(start)
   "Searches lines backward, finds the one that is indented less
 than certain indentation t"
   (save-excursion
@@ -185,11 +188,11 @@ than certain indentation t"
           ;; Find an indent smaller than _start_
           (<= start c)
           ;; Walk lines backward
-          (bsunindent_prev-line)))
+          (clean-aindent_prev-line)))
       ;; _c_ is the computed unindent size
       c)))
 
-(defun bsunindent_inside-indentp()
+(defun clean-aindent_inside-indentp()
   "Returns true if cursor is in the leading whitespace or first
 non-blank character of a line"
   (save-excursion
@@ -200,25 +203,25 @@ non-blank character of a line"
         t
         nil))))
 
-(defun bsunindent_line-point()
+(defun clean-aindent_line-point()
   "Get (point) at the beginning of the current line"
   (save-excursion
     (beginning-of-line)
     (point)))
 
-(defun bsunindent(arg)
+(defun clean-aindent_bsunindent(arg)
   "Unindents.
 Bound to `M-backspace' key. Searches lines backward, finds the one that
 is indented less than the current one. Unindents current line to
 align with that smaller indentation"
   (interactive "p")
-  (if (not (bsunindent_inside-indentp))
+  (if (not (clean-aindent_inside-indentp))
     (kill-word (- arg))  ;; Original "C-backspace" key function
     ;; Else, cursor inside indent space, do unindent
     (let*
-        ((ln (bsunindent_line-point))
+        ((ln (clean-aindent_line-point))
         (c (current-indentation))
-        (n (bsunindent_find-indent c))  ;; compute new indent
+        (n (clean-aindent_find-u-indent c))  ;; compute new indent
         (s (+ ln n)))  ;; start of region to delete
       (if (not (= s c))
         (progn
@@ -240,7 +243,7 @@ Hook clean-indent() to 'return' key, and unindent to M-backspace"
   (set 'last-indent-length 0)
   (add-hook 'post-command-hook 'clean-aindent_check-last-point)
   (global-set-key (kbd "RET") 'clean-aindent)
-  (global-set-key (kbd "M-DEL") 'bsunindent))
+  (global-set-key (kbd "M-DEL") 'clean-aindent_bsunindent))
 
 (defun clean-aindent-done()
   "Unhook clean-inindent()"
