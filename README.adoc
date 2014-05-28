@@ -55,6 +55,10 @@ C0, public domain. See {license}[LICENSE.txt]
 
 == Changelog
 
+==== 2014-05-27, v1.2.0, pmarinov
+
+* Changed: Move all function under the same namespace (function prefix)
+
 ==== 2014-03-07, v1.1.0, pmarinov
 
 * Added: Simple auto indent mode. Configurable via M-x customize.
