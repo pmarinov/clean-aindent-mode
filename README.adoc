@@ -1,8 +1,8 @@
 = README
 :docpage: http://www.emacswiki.org/emacs/CleanAutoIndent
-:license: https://github.com/pmarinov/clean-aindent/blob/master/LICENSE.txt
+:license: https://github.com/pmarinov/clean-aindent-mode/blob/master/LICENSE.txt
 
-clean-aindent.el -- Emacs extension for clean auto-indent and
+clean-aindent-mode.el -- Emacs extension for clean auto-indent and
 backspace unindent
 
 == Features
@@ -22,18 +22,18 @@ For detailed documentation with screenshots please visit the
 
 == Installation
 
-. Download +clean-aindent.el+
+. Download +clean-aindent-mode.el+
 
- $ wget https://github.com/pmarinov/clean-aindent/archive/master.zip
+ $ wget https://github.com/pmarinov/clean-aindent-mode/archive/master.zip
  $ unzip master.zip
 
-. Copy +clean-aindent.el+ to your +~/.emacs.d+ directory
+. Copy +clean-aindent-mode.el+ to your +~/.emacs.d+ directory
 
- $ cp clean-aindent-master/clean-aindent.el ~/.emacs.d
+ $ cp clean-aindent-master/clean-aindent-mode.el ~/.emacs.d
 
 . Add this to your +init.el+
 
- (require 'clean-aindent)
+ (require 'clean-aindent-mode)
 
 == Configuration
 
@@ -41,7 +41,7 @@ To activate the simple indent mode, do one of the two:
 
 . In your +init.el+
 
- (set 'clean-aindent_is-simple-indent t)
+ (set 'clean-aindent--is-simple-indent t)
 
 . Via +M-x customize+
 
@@ -49,11 +49,17 @@ Search for +auto indent+, toggle to +on+. Then +Apply and Save+.
 
 == License
 
-clean-aindent was written by Petar Marinov
+clean-aindent-mode was written by Peter Marinov (Petar Marinov)
 
 C0, public domain. See {license}[LICENSE.txt]
 
 == Changelog
+
+==== 2014-06-12, v1.3.0, pmarinov
+
+* Changed: Change name space to be "clean-aindent--"
+* Changed: Implement a clean-aindent-mode as a way to turn on/off
+* Bugfix: Backspace unindent now handles TABs ('\t') correctly
 
 ==== 2014-05-27, v1.2.0, pmarinov
 
