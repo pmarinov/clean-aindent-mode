@@ -1,34 +1,57 @@
-;;; clean-aindent-mode.el
+;;; clean-aindent-mode.el --- Simple indent and unindent, trims indent white-space
 
 ;; This is free and unencumbered software released into the public domain.
 ;; (http://unlicense.org)
 
 ;; Author: peter marinov <efravia@gmail.com>
 ;; Created: 2013-08-17
-;; Last: 2014-06-12
-;; Version: 1.3.0
+;; Last: 2014-06-14
+;; Version: 1.4.0
 ;; License: C0 (public domain)
 ;; URL: https://github.com/pmarinov/clean-aindent-mode
 ;; Doc URL: http://www.emacswiki.org/emacs/CleanAutoIndent
-;; Keywords: indentation whitespace
+;; Keywords: indentation whitespace backspace
 
 ;; This file is not part of GNU Emacs.
 
 ;;; Commentary:
 
-;; 1. Extension of `newline-and-indent' that keeps track of the last
+;; === Description of the features
+;; 1. Extension of 'newline-and-indent' that keeps track of the last
 ;; auto-indent operation and, if it is abandoned, would take care to
-;; trim down the abandoned white space characters. It binds
-;; `newline-and-indent' to RET.
+;; trim down the unused white space characters.
 ;;
-;; 2. Backspace Unindent. Extension of M-backspace.
+;; 2. Simple indent, if activated, where cursor is aligned with
+;; indent of the lines above.
+;;
+;; 3. Backspace Unindent. Extension of M-backspace.
 ;; When cursor is in the indentation space of a line, or at the first
 ;; character and you press M-backspace it will move the entire line to
 ;; be aligned to the line above or any other that is with indentation
 ;; smaller than the current.
 ;;
+;; === To activate
+;; 'M-x clean-aindent-mode'
+;; or
+;; add this to your init.el:
+;; (clean-aindent-mode t)
+;;
+;; By default auto-indent is bound to 'C-j'. Bind it to 'RET' for most
+;; convenient use of the features. Add this to your init.el:
+;; (define-key global-map (kbd "RET") 'newline-and-indent)
+;;
+;; === Options
+;; M-x customize, search for 'auto indent', toggle to on,
+;; then 'Apply and Save'.
+;; or
+;; add this to your init.el:
+;; (set 'clean-aindent-is-simple-indent t)
+;;
 
 ;;; Change Log:
+;;
+;; 2014-06-14, pmarinov, v1.4.0
+;;     - Implement as an advice to 'newline-and-indent'
 ;;
 ;; 2014-06-01, pmarinov, v1.3.0
 ;;     - Activate via a minor mode
@@ -45,26 +68,30 @@
 ;;
 
 
-;;
-;; Implementation of Clean auto indent
-;;
+(defgroup clean-aindent nil
+  "Settings for 'clean-aindent-mode'"
+  :group 'indent)
 
-(defcustom clean-aindent--is-simple-indent nil
-  "Indentation should use the smart language mode or simple mode"
+(defcustom clean-aindent-is-simple-indent nil
+  "Determines if indentation should use the smart language mode or simple mode"
   :tag "Clean auto indent is in simple mode"
-  :group 'indent
+  :group 'clean-aindent
   :type 'boolean)
 
+;;
+;; Implementation of Clean auto indent and simple indent
+;;
+
 (defun clean-aindent--get-indent-len()
-  "Computes the length of the indentation at 'clean-aindent--last-indent."
-  (let ((len 0))
+  "Computes the length of the line at 'clean-aindent--last-indent."
+  (let ((eol-pos 0))
     (save-excursion
       (goto-char clean-aindent--last-indent)
       (end-of-line)
-      (set 'len (point))
+      (setq eol-pos (point))
       (beginning-of-line)
-      ;; (message "len %d" (- len (point)))
-      (set 'len (- len (point))))))
+      ;; return ln-len = eol-pos - pos
+      (- eol-pos (point)))))
 
 (defun clean-aindent--abandonedp()
   "Checks if last auto-indent position was abandoned.
@@ -89,9 +116,9 @@ unaltered."
     (let ((s 0)
          (e 0))
       (beginning-of-line)
-      (set 's (point))
+      (setq s (point))
       (end-of-line)
-      (set 'e (point))
+      (setq e (point))
       (delete-trailing-whitespace s e)
       (end-of-line)
       (message "auto trimmed %d chars" (- e (point))))))
@@ -105,7 +132,7 @@ unaltered."
     (and
       clean-aindent--last-indent
       (not (= clean-aindent--last-indent (point))))
-    (set 'clean-aindent--last-indent nil)))
+    (setq clean-aindent--last-indent nil)))
 
 (defun clean-aindent--find-indent()
   "Searches lines backward, finds first non-blank. Returns
@@ -124,35 +151,32 @@ indentation, regardless of language settings."
     (let ((s 0)
          (e 0))
       (beginning-of-line)
-      (set 's (point))
+      (setq s (point))
       (end-of-line)
-      (set 'e (point))
+      (setq e (point))
       (delete-trailing-whitespace s e)
       (end-of-line)))
   ;; Insert a new line and indent
   (newline)
   (indent-to (clean-aindent--find-indent) 0))
 
-(defun clean-aindent()
-  "Invokes newline-and-indent().
-Key `RET' is bound to clean-aindent. It does auto-indent via
-newline-and-indent(). Keeps track of the last indent so that it can
-be deleted in case it was abandoned"
-  (interactive)
-  (if clean-aindent-mode
-      (progn
-      (clean-aindent--check-last-point)  ; In case of consequtive aindent calls
-      (if clean-aindent--is-simple-indent
-          (clean-aindent--simple-newline-and-indent)
-        (newline-and-indent))
-      (set 'clean-aindent--last-indent nil)
-      (make-local-variable 'clean-aindent--last-indent)
-      (set 'clean-aindent--last-indent (point))
-      (set 'clean-aindent--last-indent-len (clean-aindent--get-indent-len))
-      (make-local-variable 'clean-aindent--last-indent-len))
-    ;; Mode is disabled, invoke default action
-    (newline)))
-
+(defadvice newline-and-indent (around clean-aindent)
+  "Advice for newline-and-indent(), implements clean auto-indent.
+Removes unneeded whitespaces by keeping track of the place of the
+last indentation so that they can be deleted in case the indentation was
+abandoned."
+  (clean-aindent--check-last-point)  ;; In case of consequtive aindent calls
+  (if clean-aindent-is-simple-indent
+      (clean-aindent--simple-newline-and-indent)  ;; Run our simple indent feature
+    (progn
+     ad-do-it))  ;; Run 'newline-and-indent' here
+  (setq clean-aindent--last-indent nil)
+  ;; Make local: track on per buffer basis
+  (make-local-variable 'clean-aindent--last-indent)
+  ;; Track position and length of the indentation
+  (setq clean-aindent--last-indent (point))
+  (setq clean-aindent--last-indent-len (clean-aindent--get-indent-len))
+  (make-local-variable 'clean-aindent--last-indent-len))
 
 ;;
 ;; Backspace-unindent implementation functions
@@ -191,7 +215,7 @@ than certain indentation t"
     (let (c)
       (while
         (and
-          (set 'c (current-indentation))
+          (setq c (current-indentation))
           (> c 0)
           ;; Find an indent smaller than _start_
           (<= start c)
@@ -230,24 +254,20 @@ Bound to `M-backspace' key. Searches lines backward, finds the one that
 is indented less than the current one. Unindents current line to
 align with that smaller indentation"
   (interactive "p")
-  (if clean-aindent-mode
-      (progn
-      (if (not (clean-aindent--inside-indentp))
-        (kill-word (- arg))  ;; Original "C-backspace" key function
-        ;; Else, cursor inside indent space, do unindent
-        (let*
-            ((ln (clean-aindent--line-point))
-            (c (current-indentation))
-            (n (clean-aindent--find-u-indent c))  ;; compute new indent
-            (s (+ ln n)))  ;; start of region to delete
-          (if (not (= s c))
-            (progn
-              ;; (message "new unindent %d" n)
-              ;; Delete characters between s to c
-              (clean-aindent--goto-column c)
-              (backward-delete-char-untabify (- c n)))))))
-    ;; Mode is disabled, invoke default action
-    (backward-kill-word)))
+  (if (not (clean-aindent--inside-indentp))
+      (kill-word (- arg))  ;; Original "C-backspace" key function
+    ;; else: cursor is inside indent space, do unindent
+    (let*
+        ((ln (clean-aindent--line-point))
+        (c (current-indentation))
+        (n (clean-aindent--find-u-indent c))  ;; compute new indent
+        (s (+ ln n)))  ;; start of region to delete
+      (if (not (= s c))
+        (progn
+          ;; (message "new unindent %d" n)
+          ;; Delete characters between s to c
+          (clean-aindent--goto-column c)
+          (backward-delete-char-untabify (- c n)))))))
 
 
 ;;
@@ -257,39 +277,43 @@ align with that smaller indentation"
 (defvar clean-aindent--last-indent nil)
 (defvar clean-aindent--last-indent-length 0)
 
-(defun clean-aindent--post-command()
-  "List of actions for `clean-aindent' at the end of each command."
-  (if clean-aindent-mode
-      (clean-aindent--check-last-point)))
-
-;; The clean-aindent functions are hooked but dormant until
-;; activated by a call to clean-aindent-mode
-;;
-;; Attching to "RET" via the usual minor-mode map assigns very high priority
-;; that overrides desired functionality in, for example, minibuffer or dired.
-(add-hook 'post-command-hook 'clean-aindent--post-command)
-(global-set-key (kbd "RET") 'clean-aindent)
-(global-set-key (kbd "M-DEL") 'clean-aindent--bsunindent)
-
+(defvar clean-aindent-mode--keymap (make-keymap) "clean-aindent-mode keymap.")
+(define-key clean-aindent-mode--keymap (kbd "M-DEL") 'clean-aindent--bsunindent)
 
 ;;;###autoload
 (define-minor-mode clean-aindent-mode
-  "Activates clean auto indent for key RET and
+  "Activates clean auto indent for function 'newline-and-indent' and
 back-space unindent for M-DEL (meta-backspace).
 
 clean-aindent mode is a global minor mode.
 
-1. Extension of `newline-and-indent' that keeps track of the last
+1. Extension of 'newline-and-indent' that keeps track of the last
 auto-indent operation and, if it is abandoned, would take care to
-trim down the abandoned white space characters. It binds
-`newline-and-indent' to RET.
+trim down the unused white space characters.
 
-2. Backspace Unindent. Extension of M-backspace.  When cursor is
+2. Simple indent, if activated, where cursor is aligned with
+indent of the lines above.
+
+3. Backspace Unindent. Extension of M-backspace. When cursor is
 in the indentation space of a line, or at the first character and
 you press M-backspace it will move the entire line to be aligned
 to the line above or any other that is with indentation smaller
 than the current."
-  ;; The modes sole purpose is to be activated/deactivated.
-  :global t)
+  :init-value nil  ; The initial value - disabled by default
+  :global t        ; Global minor mode
+  :keymap clean-aindent-mode--keymap
+  ;; BODY
+  (if clean-aindent-mode
+      ;; Activate
+      (progn
+      (ad-enable-advice 'newline-and-indent 'around 'clean-aindent)
+      (ad-activate 'newline-and-indent)
+      (add-hook 'post-command-hook 'clean-aindent--check-last-point))
+    ;; Deactivate
+    (progn
+    (ad-disable-advice 'newline-and-indent 'around 'clean-aindent)
+    (ad-activate 'newline-and-indent)
+    (remove-hook 'post-command-hook 'clean-aindent--check-last-point))))
 
 (provide 'clean-aindent-mode)
+;;; clean-aindent-mode.el ends here
