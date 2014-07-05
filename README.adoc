@@ -35,17 +35,33 @@ For detailed documentation with screenshots please visit the
 
  (require 'clean-aindent-mode)
 
+. For convenience, activate RET for auto indent operation (the default is C-j)
+
+ (define-key global-map (kbd "RET") 'newline-and-indent))
+
 == Configuration
 
 To activate the simple indent mode, do one of the two:
 
 . In your +init.el+
 
- (set 'clean-aindent--is-simple-indent t)
+ (set 'clean-aindent-is-simple-indent t)
 
 . Via +M-x customize+
 
 Search for +auto indent+, toggle to +on+. Then +Apply and Save+.
+
+== Installation and configuration via MELPA
+
+An example configiration *if the extension is installed via MELPA*
+
+ ;; Here init section for all packages loaded from MELPA
+ (defun my-pkg-init()
+   ;; clean-aindent
+   (clean-aindent-mode t)
+   (setq clean-aindent-is-simple-indent t)
+   (define-key global-map (kbd "RET") 'newline-and-indent))
+ (add-hook 'after-init-hook 'my-pkg-init)
 
 == License
 
@@ -54,6 +70,10 @@ clean-aindent-mode was written by Peter Marinov (Petar Marinov)
 C0, public domain. See {license}[LICENSE.txt]
 
 == Changelog
+
+==== 2014-06-14, v1.4.0, pmarinov
+
+* Implement as an advice to 'newline-and-indent'
 
 ==== 2014-06-12, v1.3.0, pmarinov
 
