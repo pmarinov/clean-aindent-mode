@@ -55,9 +55,7 @@ Search for +auto indent+, toggle to +on+. Then +Apply and Save+.
 
 An example configiration *if the extension is installed via MELPA*
 
- ;; Here init section for all packages loaded from MELPA
  (defun my-pkg-init()
-   ;; clean-aindent
    (clean-aindent-mode t)
    (setq clean-aindent-is-simple-indent t)
    (define-key global-map (kbd "RET") 'newline-and-indent))
