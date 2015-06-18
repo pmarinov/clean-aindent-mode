@@ -275,7 +275,7 @@ align with that smaller indentation"
 ;;
 
 (defvar clean-aindent--last-indent nil)
-(defvar clean-aindent--last-indent-length 0)
+(defvar clean-aindent--last-indent-len 0)
 
 (defvar clean-aindent-mode--keymap (make-keymap) "clean-aindent-mode keymap.")
 (define-key clean-aindent-mode--keymap (kbd "M-DEL") 'clean-aindent--bsunindent)
