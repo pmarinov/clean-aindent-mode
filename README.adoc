@@ -56,7 +56,7 @@ Search for +auto indent+, toggle to +on+. Then +Apply and Save+.
 An example configiration *if the extension is installed via MELPA*
 
  (defun my-pkg-init()
-   (electric-indent-mode nil)  ; no electric indent, auto-indent is sufficient
+   (electric-indent-mode -1)  ; no electric indent, auto-indent is sufficient
    (clean-aindent-mode t)
    (setq clean-aindent-is-simple-indent t)
    (define-key global-map (kbd "RET") 'newline-and-indent))
@@ -64,7 +64,7 @@ An example configiration *if the extension is installed via MELPA*
 
 == License
 
-clean-aindent-mode was written by Peter Marinov (Petar Marinov)
+clean-aindent-mode was written by Peter Marinov
 
 C0, public domain. See {license}[LICENSE.txt]
 

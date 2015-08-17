@@ -5,8 +5,8 @@
 
 ;; Author: peter marinov <efravia@gmail.com>
 ;; Created: 2013-08-17
-;; Last: 2014-06-14
-;; Version: 1.4.0
+;; Last: 2015-08-16
+;; Version: 1.5.0
 ;; License: C0 (public domain)
 ;; URL: https://github.com/pmarinov/clean-aindent-mode
 ;; Doc URL: http://www.emacswiki.org/emacs/CleanAutoIndent
@@ -30,6 +30,9 @@
 ;; be aligned to the line above or any other that is with indentation
 ;; smaller than the current.
 ;;
+;; Detailed documentation with example situations and screenshots:
+;; http://www.emacswiki.org/emacs/CleanAutoIndent
+;;
 ;; === To activate
 ;; 'M-x clean-aindent-mode'
 ;; or
@@ -40,6 +43,15 @@
 ;; convenient use of the features. Add this to your init.el:
 ;; (define-key global-map (kbd "RET") 'newline-and-indent)
 ;;
+;; In case you installed the extension via MELPA, use this suggested configiration:
+;;
+;;  (defun my-pkg-init()
+;;    (electric-indent-mode -1)  ; no electric indent, auto-indent is sufficient
+;;    (clean-aindent-mode t)
+;;    (setq clean-aindent-is-simple-indent t)
+;;    (define-key global-map (kbd "RET") 'newline-and-indent))
+;;  (add-hook 'after-init-hook 'my-pkg-init)
+;;
 ;; === Options
 ;; M-x customize, search for 'auto indent', toggle to on,
 ;; then 'Apply and Save'.
@@ -49,6 +61,10 @@
 ;;
 
 ;;; Change Log:
+;;
+;; 2015-06-18, v1.5.0, pmarinov
+;;     - Fix for a compiler warning by justbur
+;;     - Extra comments in README
 ;;
 ;; 2014-06-14, pmarinov, v1.4.0
 ;;     - Implement as an advice to 'newline-and-indent'
