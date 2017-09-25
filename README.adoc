@@ -37,7 +37,7 @@ For detailed documentation with screenshots please visit the
 
 . For convenience, activate RET for auto indent operation (the default is C-j)
 
- (define-key global-map (kbd "RET") 'newline-and-indent))
+ (define-key global-map (kbd "RET") 'newline-and-indent)
 
 == Configuration
 
